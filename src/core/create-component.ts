@@ -22,7 +22,7 @@ export default async function (name: string) {
     return;
   }
 
-  const isSuccess = await Utils.formatCopy(srcComponentPath, distComponentPath, { name });
+  const isSuccess = await Utils.formatCopy(srcComponentPath, distComponentPath, { name }).catch(console.log);
   if (isSuccess) {
     Log.success('生成 Component 模板成功');
   } else {

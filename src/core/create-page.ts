@@ -20,7 +20,7 @@ export default async function (name: string) {
     return;
   }
 
-  const isSuccess = await Utils.formatCopy(srcPagePath, distPagePath, { name });
+  const isSuccess = await Utils.formatCopy(srcPagePath, distPagePath, { name }).catch(console.log);
   if (isSuccess) {
     // 更新app.json
     let jsonConf = JSON.parse(fs.readFileSync(appJsonPath));

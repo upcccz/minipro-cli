@@ -83,7 +83,7 @@ export default async function publishProgram() {
     return;
   }
 
-  const answers = await inquirer.prompt(handleQuestion(version))
+  const answers = await inquirer.prompt(handleQuestion(version)).catch(console.log)
   console.log(answers);
 
   const projectJsonPath = Utils.cdProjectJson();

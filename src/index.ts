@@ -50,7 +50,7 @@ program
 program
   .command('publish')
   .description('发布版本')
-  .action(() => publishProgram())
+  .action(() => publishProgram().catch(console.log))
 
 program
   .arguments('<command>')

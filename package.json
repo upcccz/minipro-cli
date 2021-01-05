@@ -1,6 +1,6 @@
 {
   "name": "minipro-cli",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "",
   "main": "./lib/index.js",
   "scripts": {
@@ -18,8 +18,8 @@
   ],
   "author": "upcccz",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/upcccz/minipro-cli.git"
+    "type": "git",
+    "url": "https://github.com/upcccz/minipro-cli.git"
   },
   "homepage": "https://github.com/upcccz/minipro-cli.git",
   "license": "ISC",
