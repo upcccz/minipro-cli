@@ -66,7 +66,7 @@ program.on('--help', () => {
   console.log()
   console.log(`  Run ${chalk.cyan(`minipro-cli <command> -h, --help`)} for detailed usage of given command.`)
   console.log()
-  console.log(`${chalk.cyan('Tips:')} ${chalk.yellow('除 minipro-cli create [project] 选项外，其余命令需要在小程序 app.json 同级目录下执行')}`);
+  console.log(`${chalk.cyan('Tips:')} ${chalk.yellow('除 minipro-cli create [project] 选项外，其余命令需要在小程序根目录下执行')}`);
   console.log()
 })
 
@@ -76,7 +76,7 @@ program.commands.forEach(c => c.on('--help', () => {
     console.log(`${chalk.cyan('e.g:')} minipro-cli ic index nav-list`);
   } else if (c._name === 'publish') {
     console.log();
-    console.log(`${chalk.cyan('Tips:')} ${chalk.yellow('需要在小程序app.json同级目录配置 minicli.json 以提供当前小程序版本信息。')}`);
+    console.log(`${chalk.cyan('Tips:')} ${chalk.yellow('需要在小程序根级目录配置 minicli.json 以提供当前小程序版本信息。')}`);
     console.log();
     console.log(`${chalk.cyan('Example (minicli.json):')}`);
     console.log();

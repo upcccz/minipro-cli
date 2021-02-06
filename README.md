@@ -15,7 +15,7 @@ minipro-cli <command> -h
 
 ### Commands
 
-需要注意的是，除了 minipro-cli create [project] 选项外，其他命令都需要在小程序 app.json 同级目录下执行。
+需要注意的是，除了 minipro-cli create [project] 选项外，其他命令都需要在小程序根目录(project.config.json所在目录)下执行。
 
 #### create
 
@@ -53,7 +53,7 @@ minipro-cli invoke index nav-list
 minipro-cli publish
 ```
 
-需要提供 minicli.json (与 app.json 处于同级目录)
+需要提供 minicli.json (与 project.config.json 处于同级目录)
 
 ```js
 // example

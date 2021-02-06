@@ -1,7 +1,6 @@
 const fs = require('fs');
-const path = require('path');
 
-interface PathStructure {
+export interface PathStructure {
   dir: string[];
   file: string[];
 }
@@ -92,16 +91,6 @@ export default {
   },
 
   /**
-   * 检查路径是否存在
-   *
-   * @param {String} path
-   * @returns {Boolean} 存在为true
-   */
-  checkFileIsExists(path): boolean {
-    return fs.existsSync(path);
-  },
-
-  /**
    * 确定当前目录下的pages目录
    * 
    * @param {string} path app.json的路径
@@ -139,56 +128,5 @@ export default {
         reject(err);
       })
     })
-  },
-
-  /**
-   * 检查当前执行命令的目录下是否存在 app.json
-   * 存在则返回 app.json 的文件路径，不存在返回空字符串
-   * @returns {string}
-   */
-  checkAppJsonExist():string {
-    const appJsonPath = path.join(process.cwd(), './app.json');
-    const isExist = this.checkFileIsExists(appJsonPath);
-    if (isExist) {
-      return appJsonPath;
-    }
-    return '';
-  },
-
-  /**
-   * 用来找到当前模板应该复制到哪个路径
-   * 
-   * @param {string} appJsonPath app.json的文件路径，以便解析出page目录
-   * @param {string} fileName 当前模板的名称
-   * @param {TemplateType} type 模板的类型
-   * @returns {string} 返回模板应该复制到的目标路径
-   */
-  findTempDistPath(appJsonPath: string, fileName: string, type: TemplateType): string {
-    const pagePath = this.findPagePath(appJsonPath);
-
-    if (type === TemplateType.页面) {
-      return path.join(process.cwd(), `${pagePath}/${fileName}`);
-    } else if (type === TemplateType.组件) {
-      return path.resolve(`${process.cwd()}/${pagePath}`, `../components/${fileName}`)
-    }
-
-    return '';
-  },
-
-  /**
-   * 存在 project.config.json 与 app.json 不在同一级目录的情况
-   * 因为调用小程序命令行工具需要在 project.config.json 目录下
-   * 这个方法用来实现找到 project.config.json 目录，并 cd 到该目录
-   * @returns {string} 返回project.config.json的路径
-   */
-  cdProjectJson(): string {
-    const pathArr = this.handlePath(path.resolve(process.cwd(), '../'));
-    let projectJsonPath = '';
-    pathArr.file.forEach((filePath) => {
-      if (filePath.endsWith('project.config.json')) {
-        projectJsonPath = filePath;
-      }
-    })
-    return projectJsonPath;
   }
 }

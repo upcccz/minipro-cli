@@ -1,36 +1,35 @@
-import Log from '../utils/log';
-import Utils from '../utils'
+import log from '../utils/log';
+import { getPath } from '../utils/get-path';
 
 const fs = require('fs');
 const path = require('path');
 
-
 export default function (pageName: string, componentName: string) {
-  const appJsonPath = Utils.checkAppJsonExist();
+  const pathData = getPath();
 
-  if (!appJsonPath) {
-    Log.error('不存在 app.json，请重新确认路径');
+  if (!pathData) {
     return;
   }
 
-  const pagePath = Utils.findPagePath(appJsonPath);
+  const { appJsonPath, pagePrefix } = pathData;
 
-  const pageJsonPath = path.join(process.cwd(), `/${pagePath}/${pageName}/${pageName}.json`);
-  const isPageJsonExist = Utils.checkFileIsExists(pageJsonPath);
+
+  const pageJsonPath = path.resolve(appJsonPath, `../${pagePrefix}/${pageName}/${pageName}.json`);
+  const isPageJsonExist = fs.existsSync(pageJsonPath);
   if (!isPageJsonExist) {
-    Log.error(`不存在对应的 page.json 文件，请重新确认路径。path: ${pageJsonPath}`)
+    log.error(`不存在对应的 page.json 文件，请重新确认路径。path: ${pageJsonPath}`)
     return;
   }
 
   const pageJson = JSON.parse(fs.readFileSync(pageJsonPath));
-  const componentPath = path.resolve(pagePath, `../components/${componentName}/${componentName}`);
-  const isComponentExist = Utils.checkFileIsExists(`${componentPath}.json`);
+  const componentPath = path.resolve(appJsonPath, `../components/${componentName}/${componentName}`);
+  const isComponentExist = fs.existsSync(`${componentPath}.json`);
   if (!isComponentExist) {
-    Log.error(`不存在对应的组件文件，请重新确认路径。path: ${componentPath}`)
+    log.error(`不存在对应的组件文件，请重新确认路径。path: ${componentPath}`)
     return;
   }
   if (pageJson.usingComponents) {
-    pageJson.usingComponents[componentName] = componentPath.replace(process.cwd(), '');
+    pageJson.usingComponents[componentName] = componentPath.replace(path.resolve(appJsonPath, '../'), '');
   } else {
     pageJson.usingComponents = {
       [componentName]: componentPath.replace(process.cwd(), '')
@@ -38,5 +37,5 @@ export default function (pageName: string, componentName: string) {
   }
   
   fs.writeFileSync(pageJsonPath, JSON.stringify(pageJson, null, 2));
-  Log.success(`为页面 ${pageName} 引入组件 ${componentName} 成功`);
+  log.success(`为页面 ${pageName} 引入组件 ${componentName} 成功`);
 }

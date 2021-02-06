@@ -1,5 +1,5 @@
-import Utils from '../utils';
-import Log from '../utils/log';
+import log from '../utils/log';
+import { getPath } from '../utils/get-path';
 
 const fs = require('fs');
 const inquirer = require('inquirer');                     // 启动交互命令行
@@ -18,7 +18,7 @@ function getVersionChoices(version: string): string[] {
   const versionReg = /(\d+.){2,3}\d+/g;
   if (!versionReg.test(aVersion)) {
     aVersion = '1.0.0'; // 如果不符合规格的version 默认写为1.0.0
-    Log.warn('配置的 version 不符合规范, 已默认修正为1.0.0');
+    log.warn('配置的 version 不符合规范, 已默认修正为1.0.0');
   }
 
   for(let i = 0; i < choices.length; i++) {
@@ -59,43 +59,45 @@ function handleQuestion(version: string) {
 }
 
 export default async function publishProgram() {
-  // 读取minicli.json 获取当前版本和小程序命令行安装地址
-  const minicliJsonPath = `${process.cwd()}/minicli.json`;
+  const pathData = getPath();
 
-  const isMiniCliJsonExist = Utils.checkFileIsExists(minicliJsonPath);
-
-  if (!isMiniCliJsonExist) {
-    Log.error('需要配置 minicli.json 以提供小程序命令行工具安装地址及小程序版本信息')
-    Log.warn('具体微信小程序命令行工具说明，请查看：https://developers.weixin.qq.com/miniprogram/dev/devtools/cli.html')
+  if (!pathData) {
     return;
   }
 
-  const minicliJson = JSON.parse(fs.readFileSync(minicliJsonPath));
+  const { rootPath, projectJsonPath, miniJson } = pathData;
+
+  // 读取minicli.json 获取当前版本和小程序命令行安装地址
+  const isMiniCliJsonExist = fs.existsSync(miniJson);
+
+  if (!isMiniCliJsonExist) {
+    log.error('需要配置 minicli.json 以提供小程序命令行工具安装地址及小程序版本信息')
+    log.warn('具体微信小程序命令行工具说明，请查看：https://developers.weixin.qq.com/miniprogram/dev/devtools/cli.html')
+    return;
+  }
+
+  const minicliJson = JSON.parse(fs.readFileSync(miniJson));
   const { version, cliPath } = minicliJson
   if (!version) {
-    Log.error('需要在 minicli.json中提供 version 字段');
+    log.error('需要在 minicli.json中提供 version 字段');
     return;
   }
 
   if (!cliPath) {
-    Log.error('需要在 minicli.json中提供 cliPath 字段');
-    Log.warn('安装地址请查看：https://developers.weixin.qq.com/miniprogram/dev/devtools/cli.html');
+    log.error('需要在 minicli.json中提供 cliPath 字段');
+    log.warn('安装地址请查看：https://developers.weixin.qq.com/miniprogram/dev/devtools/cli.html');
     return;
   }
 
   const answers = await inquirer.prompt(handleQuestion(version)).catch(console.log)
-  console.log(answers);
 
-  const projectJsonPath = Utils.cdProjectJson();
-  const projectPath = path.resolve(projectJsonPath, '../');
-  const currentPath = process.cwd();
-  
   if (!projectJsonPath) {
-    Log.error('未找到 project.config.json，请重新确认路径');
-  } else {
-    // 切到 project.config.json 的所在目录
-    child_process.execSync(`cd ${projectPath}`)
+    log.error('未找到 project.config.json，请重新确认路径');
   }
+
+  const projectPath = path.resolve(projectJsonPath, '../')
+
+  console.log('开始上传体验版 ...');
 
   // 上传体验版
   child_process.execSync(`${cliPath} upload --project ${projectPath} -v ${answers.version}  -d "${answers.versionDesc}"`,  { stdio: 'inherit' });
@@ -103,9 +105,8 @@ export default async function publishProgram() {
   // 修改minicli.json
   minicliJson.version = answers.version;
   minicliJson.versionDesc = answers.versionDesc;
-  fs.writeFileSync(minicliJsonPath, JSON.stringify(minicliJson, null, 2))
+  fs.writeFileSync(miniJson, JSON.stringify(minicliJson, null, 2))
 
-  child_process.execSync(`cd ${currentPath}`)
+  child_process.execSync(`cd ${rootPath}`)
 
-  Log.success(`上传体验版成功`);
 }
