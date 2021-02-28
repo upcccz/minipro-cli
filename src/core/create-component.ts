@@ -33,19 +33,18 @@ export default async function (name: string) {
     {
       type: 'input',
       name: 'pageStr',
-      message: '是否需要在某些页面引入，输入多个以,隔开（e.g: index,about）',
+      message: '是否需要在某些页面或组件中引入，输入多个以,隔开（e.g: index,about）',
       default: '否'
     }
   ]
 
   inquirer.prompt(question).then(answers => {
     const { pageStr } = answers;
-    if (!pageStr || pageStr === '否') {
-      return;
+    if (pageStr !== '否') {
+      const pageArr = pageStr.split(',');
+      pageArr.forEach((pageName) => {
+        invokeComponent(pageName, name);
+      })
     }
-    const pageArr = pageStr.split(',');
-    pageArr.forEach((pageName) => {
-      invokeComponent(pageName, name);
-    })
   })
 }

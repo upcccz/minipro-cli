@@ -11,14 +11,19 @@ export default function (pageName: string, componentName: string) {
     return;
   }
 
-  const { appJsonPath, pagePrefix } = pathData;
+  const { appJsonPath, pagePrefix, componentPrefix } = pathData;
 
-
-  const pageJsonPath = path.resolve(appJsonPath, `../${pagePrefix}/${pageName}/${pageName}.json`);
+  let pageJsonPath = path.resolve(appJsonPath, `../${pagePrefix}/${pageName}/${pageName}.json`);
   const isPageJsonExist = fs.existsSync(pageJsonPath);
   if (!isPageJsonExist) {
-    log.error(`不存在对应的 page.json 文件，请重新确认路径。path: ${pageJsonPath}`)
-    return;
+    const componentPath = path.resolve(appJsonPath, `../${componentPrefix}/${pageName}/${pageName}.json`);
+    const isComponentExist = fs.existsSync(componentPath)
+    if (!isComponentExist) {
+      log.error('不存在对应的页面和组件，请重新确认路径。')
+      return;
+    } else {
+      pageJsonPath = componentPath;
+    }
   }
 
   const pageJson = JSON.parse(fs.readFileSync(pageJsonPath));
@@ -32,10 +37,10 @@ export default function (pageName: string, componentName: string) {
     pageJson.usingComponents[componentName] = componentPath.replace(path.resolve(appJsonPath, '../'), '');
   } else {
     pageJson.usingComponents = {
-      [componentName]: componentPath.replace(process.cwd(), '')
+      [componentName]: componentPath.replace(path.resolve(appJsonPath, '../'), '')
     }
   }
   
   fs.writeFileSync(pageJsonPath, JSON.stringify(pageJson, null, 2));
-  log.success(`为页面 ${pageName} 引入组件 ${componentName} 成功`);
+  log.success(`为${pageName} 引入组件 ${componentName} 成功`);
 }
